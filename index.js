@@ -1,18 +1,14 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-
-const { port: serverPort } = require('./config/server')
-const { handleError } = require('./src/error')
+const app = require('./src/app')
 const logger = require('./src/logger')
-
-const app = express()
-
-app.use(bodyParser.json())
+const { client: mongoClient } = require('./config/mongo')
 
 
+mongoClient.connect(function(err) {
+    if(err) {
+        logger.error(err)
+        throw new Error(err)
+    }
 
-app.use(handleError)
-
-app.listen(serverPort, () => {
-    console.log(`App listening on port ${serverPort}`)
+    logger.info('Connected to mongo')
+    app.emit('ready')
 })
